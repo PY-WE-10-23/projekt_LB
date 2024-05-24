@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Events List{% endblock %}
+
+{% block content %}
+    <h2>Events List</h2>
+    <form method="get">
+        <label for="user_id">Filter by user:</label>
+        <select name="user_id" id="user_id">
+            <option value="">All</option>
+            {% for user in user_list %}
+                <option value="{{ user.id }}">{{ user.username }}</option>
+            {% endfor %}
+        </select>
+        <label for="date_sort">Sort by date:</label>
+        <select name="date_sort" id="date_sort">
+            <option value="">None</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+        <label for="slots_sort">Sort by available slots:</label>
+        <select name="slots_sort" id="slots_sort">
+            <option value="">None</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+        <label for="total_slots">Filter by total slots greater than:</label>
+        <input type="number" name="total_slots" id="total_slots" min="0">
+        <button type="submit">Apply Filters</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Total Slots</th>
+                <th>Registered</th>
+                <th>Available Slots</th>
+                <th>Volunteers</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+                <tr>
+                    <td>{{ event.title }}</td>
+                    <td>{{ event.date|date:"d/m/Y" }}</td>
+                    <td>{{ event.available_slots }}</td>
+                    <td>{{ event.registration_set.count }}</td>
+                    <td>{{ event.remaining_slots }}</td>
+                    <td>
+                        <ul>
+                            {% for registration in event.registration_set.all %}
+                                <li>{{ registration.user.username }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'register_event' event.id %}">Register</a> -
+                        <a href="{% url 'edit_event' event.id %}">Edit</a> -
+                        <a href="{% url 'remove_event' event.id %}">Remove</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button onclick="window.location.href='{% url 'index' %}'">Back</button>
+{% endblock %}
+
+

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Running Race Management System{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <div style="float: right;">
+            {% if user.is_authenticated %}
+                <p>Welcome, {{ user.username }} |
+                <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+                </p>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+        <h1>Welcome to the Running Race Management System</h1>
+        <nav>
+            <ul>
+                 {% if user.is_authenticated %}
+                    <li><a href="{% url 'add_event' %}">Add Event</a></li>
+                 {% endif %}
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'event_list' %}">View Events</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 Running Race Management System</p>
+        <p><a href="{% url 'privacy_policy' %}">Privacy Policy</a></p>
+    </footer>
+</body>
+</html>
