@@ -3,9 +3,10 @@ from django.shortcuts import render
 # Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Event
+from .models import Event, Registration
 from .forms import UserRegisterForm, EventForm, RegistrationForm
 from django.contrib import messages
+from django.contrib.auth.models import User
 
 
 def index(request):
@@ -61,10 +62,56 @@ def register_event(request, event_id):
 
 
 def event_list(request):
+    #events = Event.objects.all()
+    #for event in events:
+    #    event.remaining_slots = event.available_slots - event.registration_set.count()
+    #return render(request, 'event_list.html', {'events': events})
+
     events = Event.objects.all()
+    registrations = Registration.objects.select_related('user', 'event').all()
+    event_registrations = {}
+    for registration in registrations:
+        if registration.event.id not in event_registrations:
+            event_registrations[registration.event.id] = []
+        event_registrations[registration.event.id].append(registration.user)
+
+    # Filtry
+    user_id = request.GET.get('user_id')
+    if user_id:
+        events = events.filter(registration__user_id=user_id)
+        print(events)
+
+    date_sort = request.GET.get('date_sort')
+    if date_sort == 'asc':
+        events = events.order_by('date')
+    elif date_sort == 'desc':
+        events = events.order_by('-date')
+
+    slots_sort = request.GET.get('slots_sort')
+    if slots_sort == 'asc':
+        events = events.order_by('available_slots')
+    elif slots_sort == 'desc':
+        events = events.order_by('-available_slots')
+
+    total_slots = request.GET.get('total_slots')
+    if total_slots:
+        events = events.filter(available_slots__gte=int(total_slots))
+
+    # Přidání dostupných slotů do aktivit
+
     for event in events:
+        event.registered_count = len(event_registrations.get(event.id, []))
+        #event.available_count = event.available_slots - event.registered_count
         event.remaining_slots = event.available_slots - event.registration_set.count()
-    return render(request, 'event_list.html', {'events': events})
+
+
+    context = {
+        'events': events,
+        'event_registrations': event_registrations,
+        'user_list': User.objects.all()
+    }
+
+    return render(request, 'event_list.html', context)
 
 
 
@@ -84,7 +131,8 @@ def register(request):
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
 
-
+def about(request):
+    return render(request, 'About.html')
 @login_required
 def profile(request):
     return render(request, 'members/profile.html')

@@ -45,9 +45,9 @@
                 <tr>
                     <td>{{ event.title }}</td>
                     <td>{{ event.date|date:"d/m/Y" }}</td>
-                    <td>{{ event.available_slots }}</td>
+                    <td>{{ event.available_slots }} tt</td>
                     <td>{{ event.registration_set.count }}</td>
-                    <td>{{ event.remaining_slots }}</td>
+                    <td>{{ event.remaining_slots }} aa</td>
                     <td>
                         <ul>
                             {% for registration in event.registration_set.all %}

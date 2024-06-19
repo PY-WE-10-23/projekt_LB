@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('about/', views.about, name='about'),
     path('add_event/', views.add_event, name='add_event'),
     path('edit_event/<int:event_id>/', views.edit_event, name='edit_event'),
     path('remove_event/<int:event_id>/', views.remove_event, name='remove_event'),
